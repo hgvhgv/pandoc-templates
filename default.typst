@@ -1,5 +1,15 @@
 #let horizontalrule = line(start: (25%,0%), end: (75%,0%))
 
+#show footnote.entry: it => {
+  let loc = it.note.location()
+  numbering(
+    "1.",
+    ..counter(footnote).at(loc)
+  )
+  [ ]
+  it.note.body
+}
+
 #show terms: it => {
   it.children
     .map(child => [
@@ -63,7 +73,11 @@ $if(keywords)$
   keywords: ($for(keywords)$$keyword$$sep$,$endfor$),
 $endif$
 $if(date)$
+$if(date.true)$
+  date: [#datetime.today().display("[day] [month repr:long] [year]")],
+$else$
   date: [$date$],
+$endif$
 $endif$
 $if(lang)$
   lang: "$lang$",
@@ -73,6 +87,24 @@ $if(region)$
 $endif$
 $if(abstract)$
   abstract: [$abstract$],
+$endif$
+$if(extratitle1)$
+  extratitle1: [$extratitle1$],
+$endif$
+$if(extratitle2)$
+  extratitle2: [$extratitle2$],
+$endif$
+$if(spacing)$
+  spacing: $spacing$,
+$endif$
+$if(header)$
+  header: $header$,
+$endif$
+$if(footer)$
+  footer: $footer$,
+$endif$
+$if(titleblock)$
+  titleblock: $titleblock$,
 $endif$
 $if(margin)$
   margin: ($for(margin/pairs)$$margin.key$: $margin.value$,$endfor$),

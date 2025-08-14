@@ -16,13 +16,19 @@
   keywords: (),
   date: none,
   abstract: none,
+  extratitle1: none,
+  extratitle2: none,
+  spacing: 1,
+  header: true,
+  footer: true,
+  titleblock: true,
   cols: 1,
-  margin: (x: 1.25in, y: 1.25in),
+  margin: (x: 1in, y: 1in),
   paper: "us-letter",
   lang: "en",
   region: "US",
-  font: (),
-  fontsize: 11pt,
+  font: ("EB Garamond", "Times New Roman"),
+  fontsize: 12pt,
   sectionnumbering: none,
   pagenumbering: "1",
   doc,
@@ -37,53 +43,64 @@
     margin: margin,
     numbering: pagenumbering,
     columns: cols,
+    header: if header { context {
+      if counter(page).get().first() > 1 {
+        let author-last = if authors.len() > 0 {
+          let author-name = content-to-string(authors.at(0).name)
+          author-name.split(" ").last()
+        } else { "" }
+        let title-short = if title != none { content-to-string(title) } else { "" }
+        let date-str = if date != none { content-to-string(date) } else { "" }
+        align(left)[#author-last / #title-short / #date-str]
+      }
+    } } else { none },
+    footer: if footer { context {
+      let page-num = counter(page).get().first()
+      let total-pages = counter(page).final().first()
+      align(right)[#page-num / #total-pages]
+    } } else { none },
     )
-  set par(justify: true)
+  set par(justify: false, first-line-indent: 0.5in, leading: (spacing * 0.65em), spacing: (spacing * 0.65em))
   set text(lang: lang,
            region: region,
            font: font,
            size: fontsize)
   set heading(numbering: sectionnumbering)
+  
+  show heading.where(level: 1): it => block(above: 1em, below: 1em)[
+    #set par(first-line-indent: 0pt)
+    #set text(weight: "bold", size: fontsize)
+    #it.body
+  ]
+  
+  show heading.where(level: 2): it => block(above: 1em, below: 1em)[
+    #set par(first-line-indent: 0pt)
+    #set text(style: "italic", weight: "regular", size: fontsize)
+    #it.body
+  ]
+  
+  show heading.where(level: 3): it => block(above: 1em, below: 1em)[
+    #set par(first-line-indent: 0pt)
+    #set text(weight: "regular", size: fontsize)
+    #it.body
+  ]
 
-  place(top, float: true, scope: "parent", clearance: 4mm)[
-  #if title != none {
-    align(center)[#block(inset: 2em)[
-      #text(weight: "bold", size: 1.5em)[#title]
-      #(if subtitle != none {
-        parbreak()
-        text(weight: "bold", size: 1.25em)[#subtitle]
-      })
-    ]]
-  }
-
-  #if authors != none and authors != [] {
-    let count = authors.len()
-    let ncols = calc.min(count, 3)
-    grid(
-      columns: (1fr,) * ncols,
-      row-gutter: 1.5em,
-      ..authors.map(author =>
-          align(center)[
-            #author.name \
-            #author.affiliation \
-            #author.email
-          ]
-      )
-    )
-  }
-
-  #if date != none {
-    align(center)[#block(inset: 1em)[
-      #date
-    ]]
-  }
-
-  #if abstract != none {
-    block(inset: 2em)[
-    #text(weight: "semibold")[Abstract] #h(1em) #abstract
+  if titleblock and (title != none or authors.len() > 0 or date != none) {
+    let author = if authors.len() > 0 { authors.at(0).name } else { none }
+    let title-text = if title != none { content-to-string(title) } else { "" }
+    let subtitle-text = if subtitle != none { content-to-string(subtitle) } else { "" }
+    let full-title = if subtitle-text != "" { title-text + ": " + subtitle-text } else { title-text }
+    let extra-title = if extratitle1 != none { extratitle1 } else { none }
+    let extra-title2 = if extratitle2 != none { extratitle2 } else { none }
+    
+    block(below: 1em, breakable: false)[
+      #if author != none [ #author ]
+      #if full-title != "" [ \ #full-title ]
+      #if extra-title != none [ \ #extra-title ]
+      #if extra-title2 != none [ \ #extra-title2 ]
+      #if date != none [ \ #date ]
     ]
   }
-  ]
 
   doc
 }
