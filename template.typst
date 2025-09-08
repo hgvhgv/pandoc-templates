@@ -51,7 +51,13 @@
         } else { "" }
         let title-short = if title != none { content-to-string(title) } else { "" }
         let date-str = if date != none { content-to-string(date) } else { "" }
-        align(left)[#author-last / #title-short / #date-str]
+        
+        let header-parts = ()
+        if author-last != "" { header-parts.push(author-last) }
+        if title-short != "" { header-parts.push(title-short) }
+        if date-str != "" { header-parts.push(date-str) }
+        
+        align(left)[#header-parts.join(" / ")]
       }
     } } else { none },
     footer: if footer { context {
