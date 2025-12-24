@@ -50,10 +50,14 @@ $for(author)$
 $if(author.name)$
     ( name: [$author.name$],
       affiliation: [$author.affiliation$],
+      address: [$author.address$],
+      phone: [$author.phone$],
       email: [$author.email$] ),
 $else$
     ( name: [$author$],
       affiliation: "",
+      address: "",
+      phone: "",
       email: "" ),
 $endif$
 $endfor$
@@ -85,6 +89,9 @@ $if(extratitle2)$
 $endif$
 $if(spacing)$
   spacing: $spacing$,
+$endif$
+$if(first-line-indent)$
+  first-line-indent: $first-line-indent$,
 $endif$
 $if(header)$
   header: $header$,
@@ -131,6 +138,30 @@ $if(citecolor)$
 $endif$
 $if(filecolor)$
   filecolor: [$filecolor$],
+$endif$
+$if(letter)$
+  letter: $letter$,
+$endif$
+$if(recipient)$
+  recipient: (
+$if(recipient.name)$
+    ( name: [$recipient.name$],
+      address: [$recipient.address$],
+      phone: [$recipient.phone$],
+      email: [$recipient.email$] ),
+$else$
+    ( name: [$recipient$],
+      address: "",
+      phone: "",
+      email: "" ),
+$endif$
+    ),
+$endif$
+$if(salutation)$
+  salutation: [$salutation$],
+$endif$
+$if(signoff)$
+  signoff: [$signoff$],
 $endif$
   cols: $if(columns)$$columns$$else$1$endif$,
   doc,

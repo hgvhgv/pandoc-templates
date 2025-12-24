@@ -20,12 +20,13 @@
   extratitle1: none,
   extratitle2: none,
   spacing: 1,
-  header: true,
-  footer: true,
-  titleblock: true,
+  first-line-indent: 0.5in,
+  header: false,
+  footer: false,
+  titleblock: false,
   thanks: none,
   cols: 1,
-  margin: (x: 1in, y: 1in),
+  margin: (x: 1.15in, y: 1in),
   paper: "us-letter",
   lang: "en",
   region: "US",
@@ -39,6 +40,10 @@
   citecolor: none,
   filecolor: none,
   pagenumbering: "1",
+  letter: none,
+  recipient: (),
+  salutation: none,
+  signoff: none,
   doc,
 ) = {
   set document(
@@ -76,7 +81,7 @@
       align(right)[#page-num / #total-pages]
     } } else { none },
     )
-  set par(justify: false, first-line-indent: 0.5in, leading: (spacing * 0.65em), spacing: (spacing * 0.65em))
+  set par(justify: false, first-line-indent: first-line-indent, leading: (linestretch * 0.65em), spacing: (spacing * 0.65em))
   set text(lang: lang,
            region: region,
            font: font,
@@ -95,11 +100,17 @@
   
   show heading.where(level: 2): it => block(above: 1em, below: 1em)[
     #set par(first-line-indent: 0pt)
-    #set text(style: "italic", weight: "regular", size: fontsize)
+    #set text(style: "italic", weight: "bold", size: fontsize)
     #it.body
   ]
   
   show heading.where(level: 3): it => block(above: 1em, below: 1em)[
+    #set par(first-line-indent: 0pt)
+    #set text(style: "italic", size: fontsize)
+    #it.body
+  ]
+
+  show heading.where(level: 4): it => block(above: 1em, below: 1em)[
     #set par(first-line-indent: 0pt)
     #set text(weight: "regular", size: fontsize)
     #it.body
@@ -110,16 +121,73 @@
     let title-text = if title != none { content-to-string(title) } else { "" }
     let subtitle-text = if subtitle != none { content-to-string(subtitle) } else { "" }
     let full-title = if subtitle-text != "" { title-text + ": " + subtitle-text } else { title-text }
-    let extra-title = if extratitle1 != none { extratitle1 } else { none }
-    let extra-title2 = if extratitle2 != none { extratitle2 } else { none }
     
     block(below: 1em, breakable: false)[
       #if author != none [ #author ]
       #if full-title != "" [ \ #full-title ]
-      #if extra-title != none [ \ #extra-title ]
-      #if extra-title2 != none [ \ #extra-title2 ]
+      #if extratitle1 != none [ \ #extratitle1 ]
+      #if extratitle2 != none [ \ #extratitle2 ]
       #if date != none [ \ #date ]
     ]
   }
-  doc
+  if letter != none and letter {
+    let author = if authors != none and authors != () { authors.at(0) } else { none }
+    let recip = if recipient != none and recipient != () { recipient.at(0) } else { none }
+
+    set par(first-line-indent: 0pt)
+
+    if author != none [
+      #author.name
+      #if author.address != none and author.address != [] [\ #author.address]
+      #if ((author.email != none and author.email != []) or (author.phone != none and author.phone != [])) {
+        v(.25em)
+        }
+      #if author.email != none and author.email != [] [#author.email ]
+      #if author.phone != none and author.phone != [] [| #author.phone]
+    ]
+
+    v(.65em)
+
+    if recip != none [
+      #recip.name
+      #if recip.address != none [\ #recip.address]
+      #if ((recip.email != none and recip.email != []) or (recip.phone != none and recip.phone != [])) {
+        v(.65em)
+        }
+      #if recip.email != none and recip.email != [] [#recip.email \ ]
+      #if recip.phone != none and recip.phone != [] [#recip.phone]
+    ]
+
+    v(.65em)
+
+    if date != none [#date]
+
+    v(.65em)
+
+    let salutation-text = if salutation != none {
+      salutation
+    } else if recip != none {
+      [Dear #recip.name,]
+    } else {
+      none
+    }
+    if salutation-text != none [#salutation-text]
+
+    v(.65em)
+
+    set par(first-line-indent: first-line-indent)
+
+    doc
+
+    v(.65em)
+
+    let signoff-text = if signoff != none { signoff } else { [Sincerely yours,] }
+    signoff-text
+
+    v(.65em)
+
+    if author != none [#author.name]
+  } else {
+    doc
+  }
 }
